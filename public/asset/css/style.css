@@ -1,0 +1,18 @@
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0;
+    margin-left: -1px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    border-color: #dee2e6;
+}
+
+.page-link {
+    margin-left: -2px;
+}
+
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc {
+    background-image: none !important;
+}
