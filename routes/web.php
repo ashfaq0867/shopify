@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ShopifyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,4 +30,13 @@ Route::get('/products', function() {
 Route::get('/price-update', function() {
     return view('partials.price-update');
 });
+
+
+Route::controller(ShopifyController::class)->prefix('Shopify')->group(function() {
+    Route::post('/products','createProduct');
+    Route::get('/products', 'getProductList');
+    Route::get('/products/{id}',  'getProduct');
+    Route::put('/products/{id}', 'updateProduct');
+});
+
 
