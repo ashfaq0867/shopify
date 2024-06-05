@@ -37,6 +37,7 @@ class XchangeB2BService{
 
     protected function getToken()
     {
+
         // Make request for timed token
         $response = $this->httpClient->post($this->tokenUrl, [
         'headers' => [
