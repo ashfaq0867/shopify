@@ -1,7 +1,4 @@
 <?php
-
-// app/Console/Commands/FetchAndStoreVendors.php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -13,9 +10,19 @@ class FetchAndStoreVendors extends Command
     protected $signature = 'vendors:fetch';
     protected $description = 'Fetch vendors from Xchange and store them in the database';
 
+    protected $apiKey;
+    protected $tkey;
+    protected $baseApiUrl;
+
     public function __construct()
     {
         parent::__construct();
+
+        // Set the credentials and base API URL
+        $this->apiKey = config('const.xchange_api_key');
+        $this->tkey = config('const.xchange_tkey');
+        $this->baseApiUrl = config('const.xchange_base_url');
+
     }
 
     public function handle()
@@ -23,21 +30,17 @@ class FetchAndStoreVendors extends Command
         $this->info('Fetching vendors from Xchange...');
 
         // Step 1: Fetch the API token
-        $tokenResponse = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('XCHANGE_TKEY')
-        ])->post('https://xchangeb2b.com/XCH/vr_api/token');
+        $tokenResponse = Http::get("https://xchangeb2b.com/XCH/vr_api/token?tkey={$this->tkey}");
 
         if (!$tokenResponse->successful()) {
             $this->error('Failed to fetch token from Xchange.');
             return 1;
         }
 
-        $token = $tokenResponse->json()['token'];
+        $token = $tokenResponse->body();
 
-        // Step 2: Fetch vendors from Xchange
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('XCHANGE_APIKEY') . ':' . $token
-        ])->get('https://xchangemarketb2b.com/api/v2/athabasca/vendors');
+        $response = Http::withBasicAuth($this->apiKey, $token)
+            ->get($this->baseApiUrl . '/vendors');
 
         if (!$response->successful()) {
             $this->error('Failed to fetch vendors from Xchange.');
@@ -64,10 +67,6 @@ class FetchAndStoreVendors extends Command
                     'contact_phone' => $vendorData['contact_phone'] ?? null,
                     'credit_status' => $vendorData['credit_status'] ?? null,
                     'prepay_required' => $vendorData['prepay_required'] ?? null,
-                    'ap_name' => $vendorData['ap_name'] ?? null,
-                    'ap_email' => $vendorData['ap_email'] ?? null,
-                    'ap_phone' => $vendorData['ap_phone'] ?? null,
-                    'support' => $vendorData['support'] ?? null,
                 ]
             );
         }

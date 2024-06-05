@@ -185,4 +185,8 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    'files' => [
+        config_path('const.php'),
+    ],
+
 ];
