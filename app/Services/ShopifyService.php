@@ -5,6 +5,8 @@ namespace App\Services;
 
 use Shopify\Clients\GraphQL;
 use Shopify\Auth\Session;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class ShopifyGraphQLService
 {
@@ -16,12 +18,23 @@ class ShopifyGraphQLService
     {
         $this->shopifyDomain = env('SHOPIFY_DOMAIN');
         $this->accessToken = env('SHOPIFY_ACCESS_TOKEN');
+        $this->client = new Client();
+    }
 
-        $this->client = new GraphQL(
-            $this->shopifyDomain,
-            new Session('session-id', $this->shopifyDomain, true),
-            $this->accessToken
-        );
+    protected function query($query, $variables = [])
+    {
+        $response = $this->client->post("https://{$this->shopifyDomain}/admin/api/2024-04/graphql.json", [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'X-Shopify-Access-Token' => $this->accessToken,
+            ],
+            'json' => [
+                'query' => $query,
+                'variables' => $variables,
+            ],
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
     }
 
     public function createProduct(array $productData)
@@ -41,12 +54,7 @@ class ShopifyGraphQLService
         }
         GRAPHQL;
 
-        $response = $this->client->query([
-            "query" => $query,
-            "variables" => ["input" => $productData]
-        ]);
-
-        return $response->getDecodedBody();
+        return $this->query($query, ["input" => $productData]);
     }
 
     public function getProductList()
@@ -64,11 +72,7 @@ class ShopifyGraphQLService
         }
         GRAPHQL;
 
-        $response = $this->client->query([
-            "query" => $query
-        ]);
-
-        return $response->getDecodedBody();
+        return $this->query($query);
     }
 
     public function getProduct($productId)
@@ -83,12 +87,7 @@ class ShopifyGraphQLService
         }
         GRAPHQL;
 
-        $response = $this->client->query([
-            "query" => $query,
-            "variables" => ["id" => $productId]
-        ]);
-
-        return $response->getDecodedBody();
+        return $this->query($query, ["id" => $productId]);
     }
 
     public function updateProduct($productId, array $productData)
@@ -110,11 +109,6 @@ class ShopifyGraphQLService
 
         $productData['id'] = $productId;
 
-        $response = $this->client->query([
-            "query" => $query,
-            "variables" => ["input" => $productData]
-        ]);
-
-        return $response->getDecodedBody();
+        return $this->query($query, ["input" => $productData]);
     }
 }
