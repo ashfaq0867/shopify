@@ -17,7 +17,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="/products" class="nav-link">
+                <a href="{{ route('products') }}" class="nav-link">
                     <i class="nav-icon fas fa-plus"></i>
                     <p>New Products</p>
                 </a>

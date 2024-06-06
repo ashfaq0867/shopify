@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ShopifyController;
 
@@ -23,9 +24,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 
 
-Route::get('/products', function() {
-   return view('partials.products');
-});
 
 Route::get('/price-update', function() {
     return view('partials.price-update');
@@ -37,6 +35,11 @@ Route::controller(ShopifyController::class)->prefix('Shopify')->group(function()
     Route::get('/products', 'getProductList');
     Route::get('/products/{id}',  'getProduct');
     Route::put('/products/{id}', 'updateProduct');
+});
+
+Route::controller(ProductController::class)->prefix('product')->group(function() {
+    Route::get('/','getAllProducts')->name('products');
+    Route::get('/listings','getProductList')->name('product.listing');
 });
 
 
